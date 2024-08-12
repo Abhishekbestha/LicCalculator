@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lic Premium Calculator</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+  <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 20px auto;
+                padding: 0;
+                background-color: #f5f5f5;
+                width: 50%;
+                text-align: center;
+            }
+
+            h1 {
+                margin-bottom: 20px;
+            }
+
+            label {
+                display: block;
+                margin-bottom: 5px;
+                text-align: left;
+            }
+
+            input[type="text"],
+            select {
+                width: 100%;
+                padding: 8px;
+                margin-bottom: 15px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                box-sizing: border-box;
+            }
+
+            input[type="checkbox"] {
+                margin-right: 5px;
+                vertical-align: middle;
+            }
+
+            .result {
+                margin-top: 30px;
+            }
+
+            .table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 20px;
+                text-align: center;
+                margin: 0 auto;
+            }
+
+            .table th,
+            .table td {
+                border: 1px solid #ddd;
+                padding: 8px;
+            }
+
+            .table th {
+                background-color: #333;
+                color: #fff;
+            }
+
+            .table tr:nth-child(even) {
+                background-color: #f2f2f2;
+            }
+
+            .table tr:hover {
+                background-color: #ddd;
+            }
+
+            /* Media Query for mobile view */
+            @media (max-width: 768px) {
+                body {
+                    width: 80%;
+                }
+            }
+        </style>
+</head>
+
+<body>
+<h1>Lic Premium Calculator</h1>
+<form id="premiumForm">
+  <select class="custom-select form-control" id="table" name="table" style="border: 1px solid rgb(0, 64, 93);">
+    <option selected="selected" value="0">Select A Plan</option>
+    <option value="914">New Endowment Plan (Table-914)</option>
+    <option value="915">New Jeevan Anand Plan (Table-915)</option>
+    <option value="933">Jeevan Lakshya Plan (Table-933)</option>
+    <option value="936">Jeevan Labh Plan (Table-936)</option>
+    <option value="850">Jeevan Shanti Pension Plan (Table-850)</option>
+    <option value="855">Jeevan Amar Plan (Table-855)</option>
+    <option value="856">PM Vaya Vandana Yojana (Table-856)</option>
+    <option value="860">LIC Jeevan Bima Jyoti (Table-860)</option>
+  </select>
+  <div id="HtmlAppend">
+
+  </div>
+  <input type="submit" id="formSubmit" value="submit">
+</form>
+
+<div id="resultAppend">
+
+</div>
+<script>
+            $(document).ready(function () {
+                $('#formSubmit').hide();
+                $('#table').change(function () {
+                    var selectedValue = $(this).val();
+                    if (selectedValue !== '0') {
+                        $('#HtmlAppend').empty();
+                        $('#resultAppend').empty();
+                        $('#formSubmit').hide();
+                        $.ajax({
+                            url: 'GetHtml',
+                            method: 'POST',
+                            data: {planId: selectedValue},
+                            success: function (response) {
+                                $('#HtmlAppend').html(response);
+                                $('#submit').hide();
+                                $('#formSubmit').show();
+                            },
+                            error: function (xhr, status, error) {
+                                console.error(error);
+                            }
+                        });
+                    } else {
+                        $('#formSubmit').hide();
+                        $('#HtmlAppend').html('');
+                        $('#resultAppend').html('');
+                    }
+                });
+            });
+            $('#premiumForm').submit(function (e) {
+                e.preventDefault();
+                var formData = $(this).serialize();
+                $.ajax({
+                    type: 'POST',
+                    url: 'LicCheck',
+                    data: formData,
+                    success: function (response) {
+                        $('#resultAppend').html(response);
+                        console.log(response);
+                        var formDataHtml = new FormData();
+                        formDataHtml.append("htmlContent", response);
+                        $.ajax({
+                            type: 'POST',
+                            url: './Html2Pdf',
+                            data: formDataHtml,
+                            cache: false,
+                            processData: false,
+                            contentType: false,
+                            success: function (response) {
+                                console.log(response);
+                                base64ToPdf(response,'output.pdf');
+<!--                                window.location.href = "./Download";-->
+                            }
+                        });
+                    },
+                    error: function (error) {
+                        console.error('Error:', error);
+                    }
+                });
+            });
+
+            function base64ToPdf(base64Data, fileName) {
+                const base64Content = base64Data.replace(/^data:application\/pdf;base64,/, '');
+                const binaryData = atob(base64Content);
+                const arrayBuffer = new ArrayBuffer(binaryData.length);
+                const uint8Array = new Uint8Array(arrayBuffer);
+                for (let i = 0; i < binaryData.length; i++) {
+                    uint8Array[i] = binaryData.charCodeAt(i);
+                }
+                const blob = new Blob([uint8Array], {type: 'application/pdf'}
+                );
+                const downloadLink = document.createElement('a');
+                downloadLink.href = URL.createObjectURL(blob);
+                downloadLink.download = fileName || 'document.pdf';
+                downloadLink.click();
+            }
+        </script>
+</body>
+
+</html>
