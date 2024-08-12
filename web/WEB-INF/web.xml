@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="4.0" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd">
+    <servlet>
+        <servlet-name>LicCheck</servlet-name>
+        <servlet-class>api.LicCheck</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>Html2Pdf</servlet-name>
+        <servlet-class>api.Html2Pdf</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>Download</servlet-name>
+        <servlet-class>api.Download</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>GetHtml</servlet-name>
+        <servlet-class>api.GetHtml</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>LicCheck</servlet-name>
+        <url-pattern>/LicCheck</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Html2Pdf</servlet-name>
+        <url-pattern>/Html2Pdf</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Download</servlet-name>
+        <url-pattern>/Download</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>GetHtml</servlet-name>
+        <url-pattern>/GetHtml</url-pattern>
+    </servlet-mapping>
+
+    <session-config>
+        <session-timeout>
+            30
+        </session-timeout>
+    </session-config>
+</web-app>
